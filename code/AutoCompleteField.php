@@ -6,17 +6,48 @@
  * @subpackage fields-formattedinput
  */
 class AutoCompleteField extends TextField {
+	/**
+	 * Name of the class this field searches
+	 * @var string
+	 */
 	private $sourceClass;
 
+	/**
+	 * Name of the field to use as a filter for searches and results
+	 * @var string
+	 */
 	private $sourceField;
 
+	/**
+	 * Constant SQL condition used to filter out search results
+	 * @var string 
+	 */
 	private $sourceFilter;
 
+	/**
+	 * The url to use as the live search source
+	 * @var string
+	 */
 	protected $suggestURL;
 
+	/**
+	 * Maximum numder of search results to display per search
+	 * @var integer
+	 */
 	protected $limit = 10;
 
+	/**
+	 * Minimum number of characters that a search will act on
+	 * @var integer
+	 */
 	protected $minSearchLength = 2;
+
+	/**
+	 * Flag indicating whether a selection must be made from the existing list.
+	 * By default free text entry is allowed.
+	 * @var boolean
+	 */
+	protected $requireSelection = false;
 
 	/**
 	 * Create a new AutocompleteField. 
@@ -41,10 +72,10 @@ class AutoCompleteField extends TextField {
 
 	function getAttributes() {
 		return array_merge(
-			parent::getAttributes(), 
-			array(
+			parent::getAttributes(), array(
 				'data-source' => $this->getSuggestURL(),
 				'data-min-length' => $this->getMinSearchLength(),
+				'data-require-selection' => $this->getRequireSelection(),
 				'autocomplete' => 'off'
 			)
 		);
@@ -100,7 +131,9 @@ class AutoCompleteField extends TextField {
 	 * @return The name of the source field.
 	 */
 	public function getSourceField() {
-		return $this->sourceField;
+		if (isset($this->sourceField))
+			return $this->sourceField;
+		return $this->getName();
 	}
 
 	/**
@@ -146,6 +179,14 @@ class AutoCompleteField extends TextField {
 		return $this->minSearchLength;
 	}
 
+	public function setRequireSelection($requireSelection) {
+		$this->requireSelection = $requireSelection;
+	}
+
+	public function getRequireSelection() {
+		return $this->requireSelection;
+	}
+
 	/**
 	 * Get the URL used to fetch Autocomplete suggestions. Returns null
 	 * if the built-in mechanism is used.
@@ -153,9 +194,10 @@ class AutoCompleteField extends TextField {
 	 * @return The URL used for suggestions.
 	 */
 	public function getSuggestURL() {
-		
-		if(!empty($this->suggestURL)) return $this->suggestURL;
-		
+
+		if (!empty($this->suggestURL))
+			return $this->suggestURL;
+
 		// Attempt to link back to itself
 		return parse_url($this->Link(), PHP_URL_PATH) . '/Suggest';
 	}
@@ -165,10 +207,12 @@ class AutoCompleteField extends TextField {
 			return $sourceClass;
 
 		$form = $this->getForm();
-		if (!$form) return null;
+		if (!$form)
+			return null;
 
 		$record = $form->getRecord();
-		if (!$record) return null;
+		if (!$record)
+			return null;
 
 		return $record->ClassName;
 	}
@@ -180,39 +224,34 @@ class AutoCompleteField extends TextField {
 	 * @return A list of items for Autocomplete.
 	 */
 	function Suggest(HTTPRequest $request) {
-		// source
+		// Find class to search within
 		$sourceClass = $this->determineSourceClass();
 		if (!$sourceClass)
 			return;
-		$sourceDataClass = ClassInfo::baseDataClass($sourceClass);
 
-		$sourceField = isset($this->sourceField)
-				? $this->sourceField
-				: $this->getName();
+		// Find field to search within
+		$sourceField = $this->getSourceField();
 
 		// input
 		$q = Convert::raw2sql($request->getVar('term'));
 		$limit = $this->getLimit();
 
-		// query
-		$query = new SQLQuery();
-		$query
-				->setSelect($sourceField)
-				->addFrom($sourceDataClass)
-				->addWhere("\"{$sourceField}\" LIKE '%{$q}%'")
-				->addOrderBy($sourceField)
-				->setLimit($limit)
-				->setDistinct(true);
+		// Generate query
+		$query = DataList::create($sourceClass)
+				->where("\"{$sourceField}\" LIKE '%{$q}%'")
+				->sort($sourceField)
+				->limit($limit);
 		if (isset($this->sourceFilter))
-			$query->addWhere($this->sourceFilter);
-
-		// execute
-		$result = $query->execute();
+			$query->where($this->sourceFilter);
 
 		// generate items from result
 		$items = array();
-		foreach ($result as $row)
-			$items[] = $row[$sourceField];
+		foreach ($query as $item) {
+			$value = $item->$sourceField;
+			if (!in_array($value, $items)) {
+				$items[] = $value;
+			}
+		}
 
 		// the response body
 		return json_encode($items);
