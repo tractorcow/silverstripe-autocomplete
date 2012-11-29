@@ -89,8 +89,9 @@ class AutoCompleteField extends TextField {
 
 		// jQuery Autocomplete Requirements
 		Requirements::css(THIRDPARTY_DIR . '/jquery-ui-themes/smoothness/jquery-ui.css');
-		Requirements::javascript(THIRDPARTY_DIR . '/jquery/jquery.min.js');
-		Requirements::javascript(THIRDPARTY_DIR . '/jquery-ui/jquery-ui.min.js');
+		Requirements::javascript(THIRDPARTY_DIR . '/jquery/jquery.js');
+		Requirements::javascript(THIRDPARTY_DIR . '/jquery-entwine/dist/jquery.entwine-dist.js');
+		Requirements::javascript(THIRDPARTY_DIR . '/jquery-ui/jquery-ui.js');
 
 		// init script for this field
 		Requirements::javascript(AUTOCOMPLETEFIELD_DIR . '/javascript/AutocompleteField.js');
