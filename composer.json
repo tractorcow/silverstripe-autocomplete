@@ -1,5 +1,5 @@
 {
-  "name": "tractorcow/silverstripe-autocomplete",
+	"name": "tractorcow/silverstripe-autocomplete",
 	"description": "Autocomplete text field for Silverstripe",
 	"type": "silverstripe-module",
 	"keywords": ["silverstripe", "autocomplete"],
@@ -7,12 +7,17 @@
 		{
 			"name": "Damian Mooyman",
 			"homepage": "http://github.com/tractorcow",
-      "role": "Developer"
+			"role": "Developer"
 		}
 	],
-
+    "support": {
+        "issues": "http://github.com/tractorcow/silverstripe-autocomplete/issues"
+    },
 	"require":
 	{
 		"silverstripe/framework": "3.*"
-	}
+	},
+    "extra": {
+        "installer-name": "autocomplete"
+    }
 }
