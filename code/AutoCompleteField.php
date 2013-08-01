@@ -6,6 +6,11 @@
  * @subpackage fields-formattedinput
  */
 class AutoCompleteField extends TextField {
+
+	private static $allowed_actions = array(
+		'Suggest'
+	);
+
 	/**
 	 * Name of the class this field searches
 	 * @var string
