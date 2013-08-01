@@ -16,7 +16,7 @@
     },
 	"require":
 	{
-		"silverstripe/framework": "3.*"
+		"silverstripe/framework": "3.0.*-dev"
 	},
     "extra": {
         "installer-name": "autocomplete"
