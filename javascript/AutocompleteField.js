@@ -21,15 +21,12 @@
 				source: input.attr('data-source'),
 				minLength: input.attr('data-min-length'),
 				change: function( event, ui ) {			
-				input.parent().find(':hidden').val(ui.item.stored);
+					input.parent().find(':hidden').val(ui.item.stored);
 				
 					// Check if a selection from the list is required
 					if(!input.attr('data-require-selection')) return true;
-					console.log(ui);
 					// Accept if item selected from list
 					if(ui.item) {
-						console.log(input.parent().find(':hidden'));
-						
 						return true;
 					}
 
