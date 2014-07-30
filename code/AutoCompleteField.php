@@ -21,13 +21,20 @@ class AutoCompleteField extends TextField {
 	 * Name of the field to use as a filter for searches and results
 	 * @var string
 	 */
-	private $sourceField;
+	private $sourceFields = array ();
+
 
 	/**
 	 * Constant SQL condition used to filter out search results
 	 * @var string 
 	 */
 	private $sourceFilter;
+
+	/**
+	 * Constant SQL clause to sort results
+	 * @var string
+	 */
+	private $sourceSort = "ID ASC";
 
 	/**
 	 * The url to use as the live search source
@@ -55,6 +62,18 @@ class AutoCompleteField extends TextField {
 	protected $requireSelection = false;
 
 	/**
+	 * The field or method used to identify the results
+	 * @var string
+	 */
+	protected $displayField = "Title";
+
+	/**
+	 * The field to store in the database
+	 * @var string
+	 */
+	protected $storedField = "ID";
+
+	/**
 	 * Create a new AutocompleteField. 
 	 * 
 	 * @param string $name The name of the field.
@@ -62,14 +81,12 @@ class AutoCompleteField extends TextField {
 	 * @param string $value [optional] The initial value of this field.
 	 * @param int $maxLength [optional] Maximum number of characters.
 	 * @param string $sourceClass [optional] The suggestion source class.
-	 * @param string $sourceField [optional] The suggestion source field.
-	 * @param string $sourceFilter [optional] The suggestion source filter.
+	 * @param string|array $sourceFields [optional] The suggestion source fields.
 	 */
-	function __construct($name, $title = null, $value = '', $maxLength = null, $form = null, $sourceClass = null, $sourceField = null, $sourceFilter = null) {
+	function __construct($name, $title = null, $value = '', $maxLength = null, $form = null, $sourceClass = null, $sourceFields = null) {
 		// set source
 		$this->sourceClass = $sourceClass;
-		$this->sourceField = $sourceField;
-		$this->sourceFilter = $sourceFilter;
+		$this->sourceFields = is_array($sourceFields) ? $sourceFields : array($sourceFields);
 
 		// construct the TextField
 		parent::__construct($name, $title, $value, $maxLength, $form);
@@ -81,7 +98,8 @@ class AutoCompleteField extends TextField {
 				'data-source' => $this->getSuggestURL(),
 				'data-min-length' => $this->getMinSearchLength(),
 				'data-require-selection' => $this->getRequireSelection(),
-				'autocomplete' => 'off'
+				'autocomplete' => 'off',
+				'name' => $this->getName().'__autocomplete'
 			)
 		);
 	}
@@ -104,12 +122,27 @@ class AutoCompleteField extends TextField {
 	}
 
 	/**
+	 * Gets the readable value of the record, per $displayField
+	 *
+	 * @return  string
+	 */
+	public function Value() {
+		$record = DataList::create($this->sourceClass)->filter(array(
+			$this->storedField => $this->dataValue()
+		))->first();
+
+		return $record ? $record->{$this->displayField} : "";
+	}
+
+	/**
 	 * Set the class from which to get Autocomplete suggestions.
 	 * 
 	 * @param string $className The name of the source class.
 	 */
 	public function setSourceClass(string $className) {
 		$this->sourceClass = $className;
+
+		return $this;
 	}
 
 	/**
@@ -126,8 +159,10 @@ class AutoCompleteField extends TextField {
 	 * 
 	 * @param string $fieldName The name of the source field.
 	 */
-	public function setSourceField(string $fieldName) {
-		$this->sourceField = $fieldName;
+	public function setSourceFields($fields) {
+		$this->sourceFields = is_array($fields) ? $fields : array($fields);
+
+		return $this;
 	}
 
 	/**
@@ -135,11 +170,55 @@ class AutoCompleteField extends TextField {
 	 * 
 	 * @return The name of the source field.
 	 */
-	public function getSourceField() {
-		if (isset($this->sourceField))
-			return $this->sourceField;
-		return $this->getName();
+	public function getSourceFields() {
+		if (isset($this->sourceFields))
+			return $this->sourceFields;
+		return array($this->getName());
 	}
+
+
+	/**
+	 * Set the field or method that should label the results
+	 * 
+	 * @param string $field
+	 */
+	public function setDisplayField($field) {
+		$this->displayField = $field;
+
+		return $this;
+	}
+
+	/**
+	 * Get the field or method that should label the results
+	 * 
+	 * @return The name of the field.
+	 */
+	public function getDisplayField() {
+		return $this->displayField;
+	}
+
+
+	/**
+	 * Set the field that should store in the database
+	 * 
+	 * @param string $field
+	 */
+	public function setStoredField($field) {
+		$this->storedField = $field;
+
+		return $this;
+	}
+
+
+	/**
+	 * Get the field that should store in the database
+	 * 
+	 * @return The name of the field.
+	 */
+	public function getStoredField() {
+		return $this->storedField;
+	}
+
 
 	/**
 	 * Set the filter used to get Autocomplete suggestions.
@@ -148,6 +227,8 @@ class AutoCompleteField extends TextField {
 	 */
 	public function setSourceFilter(string $filter) {
 		$this->sourceFilter = $filter;
+
+		return $this;
 	}
 
 	/**
@@ -159,6 +240,28 @@ class AutoCompleteField extends TextField {
 		return $this->sourceFilter;
 	}
 
+
+	/**
+	 * Set the sort used to get Autocomplete suggestions.
+	 * 
+	 * @param string $sort The source sort.
+	 */
+	public function setSourceSort(string $sort) {
+		$this->sourceSort = $sort;
+
+		return $this;
+	}
+
+
+	/**
+	 * Get the sort used for Autocomplete suggestions.
+	 * 
+	 * @return The source sort.
+	 */
+	public function getSourceSort() {
+		return $this->sourceSort;
+	}
+
 	/**
 	 * Set the URL used to fetch Autocomplete suggestions.
 	 * 
@@ -166,10 +269,14 @@ class AutoCompleteField extends TextField {
 	 */
 	public function setSuggestURL($URL) {
 		$this->suggestURL = $url;
+
+		return $this;
 	}
 
 	public function setLimit($limit) {
 		$this->limit = $limit;
+
+		return $this;
 	}
 
 	public function getLimit() {
@@ -178,6 +285,8 @@ class AutoCompleteField extends TextField {
 
 	public function setMinSearchLength($length) {
 		$this->minSearchLength = $length;
+
+		return $this;
 	}
 
 	public function getMinSearchLength() {
@@ -186,6 +295,8 @@ class AutoCompleteField extends TextField {
 
 	public function setRequireSelection($requireSelection) {
 		$this->requireSelection = $requireSelection;
+
+		return $this;
 	}
 
 	public function getRequireSelection() {
@@ -235,29 +346,38 @@ class AutoCompleteField extends TextField {
 			return;
 
 		// Find field to search within
-		$sourceField = $this->getSourceField();
+		$sourceFields = $this->getSourceFields();
 
 		// input
-		$q = Convert::raw2sql($request->getVar('term'));
+		$q = $request->getVar('term');
 		$limit = $this->getLimit();
 
-		// Generate query
-		$query = DataList::create($sourceClass)
-				->where("\"{$sourceField}\" LIKE '%{$q}%'")
-				->sort($sourceField)
-				->limit($limit);
-		if (isset($this->sourceFilter))
-			$query->where($this->sourceFilter);
-
-		// generate items from result
-		$items = array();
-		foreach ($query as $item) {
-			$value = $item->$sourceField;
-			if (!in_array($value, $items)) {
-				$items[] = $value;
+		$filters = array ();
+		foreach(preg_split('/[\s,]+/', $q) as $keyword) {
+			foreach($sourceFields as $sourceField) {
+				$filters["$sourceField:PartialMatch"] = $keyword;
 			}
 		}
 
+		// Generate query
+		$query = DataList::create($sourceClass)
+				->filterAny($filters)
+				->sort($this->sourceSort)
+				->limit($limit);
+
+		if ($this->sourceFilter) {
+			$query = $query->where($this->sourceFilter);
+		}
+
+		// generate items from result
+		$items = array ();
+		foreach($query as $record) {
+			$items[] = array (
+				'label' => $record->{$this->displayField},
+				'value' => $record->{$this->displayField},
+				'stored' => $record->{$this->storedField}
+			);
+		}
 		// the response body
 		return json_encode($items);
 	}
