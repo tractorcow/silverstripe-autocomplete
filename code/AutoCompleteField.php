@@ -265,9 +265,9 @@ class AutoCompleteField extends TextField {
 	/**
 	 * Set the URL used to fetch Autocomplete suggestions.
 	 * 
-	 * @param string $URL The URL used for suggestions.
+	 * @param string $url The URL used for suggestions.
 	 */
-	public function setSuggestURL($URL) {
+	public function setSuggestURL($url) {
 		$this->suggestURL = $url;
 
 		return $this;
