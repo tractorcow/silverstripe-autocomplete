@@ -410,11 +410,11 @@ class AutoCompleteField extends TextField {
 	/**
 	 * Handle a request for an Autocomplete list.
 	 *
-	 * @param HTTPRequest $request The request to handle.
+	 * @param SS_HTTPRequest $request The request to handle.
 	 *
 	 * @return string A JSON list of items for Autocomplete.
 	 */
-	function Suggest(HTTPRequest $request) {
+	public function Suggest(SS_HTTPRequest $request) {
 		// Find class to search within
 		$sourceClass = $this->determineSourceClass();
 
