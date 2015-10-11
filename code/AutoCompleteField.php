@@ -79,7 +79,7 @@ class AutoCompleteField extends TextField {
 	 * @var string
 	 */
 	protected $displayField = 'Title';
-	
+
 	/**
 	 * The field or method used for the display of the result in the listing
 	 *
@@ -236,7 +236,7 @@ class AutoCompleteField extends TextField {
 	public function getDisplayField() {
 		return $this->displayField;
 	}
-	
+
 	/**
 	 * Set the field or method that should label the results.
 	 *
@@ -480,12 +480,14 @@ class AutoCompleteField extends TextField {
 		$items = array();
 
 		foreach($query as $record) {
-			$items[] = array(
+			$items[$record->{$this->storedField}] = array(
 				'label' => $record->{$this->labelField},
 				'value' => $record->{$this->displayField},
 				'stored' => $record->{$this->storedField}
 			);
 		}
+
+		$items = array_values($items);
 
 		// the response body
 		return json_encode($items);
