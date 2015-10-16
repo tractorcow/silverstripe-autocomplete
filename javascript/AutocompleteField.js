@@ -23,17 +23,17 @@
 				change: function( event, ui ) {
 					var hiddenInput = input.parent().find(':hidden');
 
+					// Accept if item selected from list
+					if(ui.item) {
+						hiddenInput.val(ui.item.stored);
+						return true;
+					}
+
 					// Check if a selection from the list is required
 					if(!input.attr('data-require-selection')) {
 						// free text is allowed, use it
 						hiddenInput.val(input[0].value);
 
-						return true;
-					}
-
-					// Accept if item selected from list
-					if(ui.item) {
-						hiddenInput.val(ui.item.stored);
 						return true;
 					}
 
