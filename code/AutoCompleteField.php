@@ -67,7 +67,7 @@ class AutoCompleteField extends TextField {
 	/**
 	 * Flag indicating whether a selection must be made from the existing list.
 	 *
-	 * By default free text entry is allowed.
+	 * By default this is true to ensure ID value is saved.
 	 *
 	 * @var bool
 	 */
