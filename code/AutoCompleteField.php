@@ -71,7 +71,7 @@ class AutoCompleteField extends TextField {
 	 *
 	 * @var bool
 	 */
-	protected $requireSelection = false;
+	protected $requireSelection = true;
 
 	/**
 	 * The field or method used to identify the results.
