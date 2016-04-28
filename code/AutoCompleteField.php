@@ -481,7 +481,7 @@ class AutoCompleteField extends TextField
             return;
         }
 
-        // Find field to search within
+        // Find fields to search within
         $sourceFields = $this->getSourceFields();
 
         // input
@@ -489,11 +489,8 @@ class AutoCompleteField extends TextField
         $limit = $this->getLimit();
 
         $filters = array();
-
-        foreach (preg_split('/[\s,]+/', $q) as $keyword) {
-            foreach ($sourceFields as $sourceField) {
-                $filters["{$sourceField}:PartialMatch"] = $keyword;
-            }
+        foreach ($sourceFields as $sourceField) {
+            $filters["{$sourceField}:PartialMatch"] = $q;
         }
 
         // Generate query
