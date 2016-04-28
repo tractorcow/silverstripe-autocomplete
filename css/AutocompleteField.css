@@ -1,0 +1,23 @@
+input.text.autocomplete ~ .value-holder {
+    display: block;
+    margin: 4px 0 0 0;
+    color: #626e79;
+}
+input.text.autocomplete ~ .value-holder .value {
+    padding: .25em;
+    display: inline-block;
+    border-bottom: 1px solid transparent;
+}
+input.text.autocomplete ~ .value-holder.has-value .value {
+    color: #4f5861;
+}
+input.text.autocomplete ~ .value-holder .clear {
+    display: none;
+    padding: .25em .5em;
+    border-radius: .25em;
+    background: #fff;
+    border-bottom: 1px solid #e8e8e8;
+}
+input.text.autocomplete ~ .value-holder.has-value .clear {
+    display: inline-block;
+}

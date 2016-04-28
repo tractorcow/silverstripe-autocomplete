@@ -119,15 +119,19 @@ class AutoCompleteField extends TextField
      */
     public function getAttributes()
     {
-        return array_merge(
+        $atts = array_merge(
             parent::getAttributes(), array(
                 'data-source' => $this->getSuggestURL(),
                 'data-min-length' => $this->getMinSearchLength(),
                 'data-require-selection' => $this->getRequireSelection(),
                 'autocomplete' => 'off',
-                'name' => $this->getName() . '__autocomplete'
+                'name' => $this->getName() . '__autocomplete',
+                'placeholder' => 'Search on ' . implode(' or ', $this->getSourceFields())
             )
         );
+        // Unset the value so we start with a clear search form
+        $atts['value'] = null;
+        return $atts;
     }
 
     /**
@@ -150,8 +154,14 @@ class AutoCompleteField extends TextField
         Requirements::javascript(THIRDPARTY_DIR . '/jquery/jquery.js');
         Requirements::javascript(THIRDPARTY_DIR . '/jquery-ui/jquery-ui.js');
 
+        // Entwine requirements
+        Requirements::javascript(THIRDPARTY_DIR . '/jquery-entwine/dist/jquery.entwine-dist.js');
+
         // init script for this field
         Requirements::javascript(AUTOCOMPLETEFIELD_DIR . '/javascript/AutocompleteField.js');
+
+        // styles for this field
+        Requirements::css(AUTOCOMPLETEFIELD_DIR . '/css/AutocompleteField.css');
 
         return parent::Field($properties);
     }
