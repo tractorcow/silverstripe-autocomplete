@@ -96,6 +96,22 @@ class AutoCompleteField extends TextField
     protected $storedField = 'ID';
 
     /**
+     * Indicate if results (when selected) should be populated underneath the text field instead of inside of the text field.
+     *
+     * @var bool
+     */
+    protected $populateSeparately = false;
+
+    /**
+     * Clears the search input field field when a selection has been made.
+     *
+     * NOTE: Only applies to when populating separately.
+     *
+     * @var bool
+     */
+    protected $clearInput = true;
+
+    /**
      * @param string      $name         The name of the field.
      * @param null|string $title        The title to use in the form.
      * @param string      $value        The initial value of this field.
@@ -124,13 +140,17 @@ class AutoCompleteField extends TextField
                 'data-source' => $this->getSuggestURL(),
                 'data-min-length' => $this->getMinSearchLength(),
                 'data-require-selection' => $this->getRequireSelection(),
+                'data-pop-separate' => $this->getPopulateSeparately(),
+                'data-clear-input' => $this->getClearInput(),
                 'autocomplete' => 'off',
                 'name' => $this->getName() . '__autocomplete',
                 'placeholder' => 'Search on ' . implode(' or ', $this->getSourceFields())
             )
         );
-        // Unset the value so we start with a clear search form
-        $atts['value'] = null;
+
+        // Override the value so we start with a clear search form (depending on configuration).
+        $atts['value'] = ($this->getPopulateSeparately() ? null : $this->Value());
+
         return $atts;
     }
 
@@ -449,6 +469,42 @@ class AutoCompleteField extends TextField
 
         // Attempt to link back to itself
         return parse_url($this->Link(), PHP_URL_PATH) . '/Suggest';
+    }
+
+    /**
+     * @param bool $populateSeparately
+     * @return static
+     */
+    public function setPopulateSeparately($populateSeparately)
+    {
+        $this->populateSeparately = $populateSeparately;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getPopulateSeparately()
+    {
+        return $this->populateSeparately;
+    }
+
+    /**
+     * @param bool $clearInput
+     * @return static
+     */
+    public function setClearInput($clearInput)
+    {
+        $this->clearInput = $clearInput;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getClearInput()
+    {
+        return $this->clearInput;
     }
 
     /**
