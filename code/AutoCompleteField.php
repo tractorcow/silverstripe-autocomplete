@@ -136,7 +136,7 @@ class AutoCompleteField extends TextField
     public function getAttributes()
     {
         $atts = array_merge(
-            parent::getAttributes(), array(
+            array(
                 'data-source' => $this->getSuggestURL(),
                 'data-min-length' => $this->getMinSearchLength(),
                 'data-require-selection' => $this->getRequireSelection(),
@@ -145,7 +145,7 @@ class AutoCompleteField extends TextField
                 'autocomplete' => 'off',
                 'name' => $this->getName() . '__autocomplete',
                 'placeholder' => 'Search on ' . implode(' or ', $this->getSourceFields())
-            )
+            ), parent::getAttributes()
         );
 
         // Override the value so we start with a clear search form (depending on configuration).
@@ -544,7 +544,7 @@ class AutoCompleteField extends TextField
         $sourceClass = $this->determineSourceClass();
 
         if (!$sourceClass) {
-            return;
+            return json_encode(array());
         }
 
         // Find fields to search within
@@ -554,16 +554,20 @@ class AutoCompleteField extends TextField
         $q = $request->getVar('term');
         $limit = $this->getLimit();
 
-        $filters = array();
-        foreach ($sourceFields as $sourceField) {
-            $filters["{$sourceField}:PartialMatch"] = $q;
-        }
-
         // Generate query
         $query = DataList::create($sourceClass)
-            ->filterAny($filters)
             ->sort($this->sourceSort)
             ->limit($limit);
+
+        // Go through each source field and apply each keyword separately using ->filter() to ensure they are combined via "AND".
+        $keywords = preg_split('/[\s,]+/', $q);
+        foreach ($sourceFields as $sourceField) {
+            foreach($keywords as $keyword) {
+                $query = $query->filter([
+                    "{$sourceField}:PartialMatch" => $keyword
+                ]);
+            }
+        }
 
         if ($this->sourceFilter) {
             $query = $query->where($this->sourceFilter);
