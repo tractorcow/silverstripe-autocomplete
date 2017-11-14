@@ -8,53 +8,88 @@
 		$('.field.autocomplete input.text').entwine({
 
     		onmatch: function() {
+                // Initialize jQuery selectors for frequently accessed elements.
+    			var $input = $(this);
+    			var $hiddenInput = $input.parent().find(':hidden');
+    			var $valueHolder = $input.parent().find('.value-holder');
+    			var $valueEl = $valueHolder.find('.value');
 
-    			var input = $(this);
-    			var hiddenInput = input.parent().find(':hidden');
-    			var valueHolder = input.parent().find('.value-holder');
-    			var valueEl = input.parent().find('.value-holder .value');
+                // Load server-side configuration.
+                var popSeparate = !!$input.data('popSeparate');
+                var clearInput = !!$input.data('clearInput') && popSeparate;
+                var requireSelection = !!$input.data('requireSelection');
+                var source = $input.data('source');
+                var minLength = parseInt($input.data('minLength'));
 
     			var updateField = function(ui){
+                    var value = $input.val();
 
-        			if (input[0].value) {
+        			if (value) {
 
         				// Accept if item selected from list
         				if(ui.item) {
                             setFieldValue(ui.item.stored, ui.item.label);
+
+                            if (clearInput) {
+                                // Reset input field, if specified.
+                                $input.val('');
+
+                            } else if (!popSeparate) {
+                                // Place label inside input field.
+                                $input.val(ui.item.label);
+                            }
+                        }
+
+                        // Check if a selection from the list is required
+                        else if(!requireSelection) {
+                            // free text is allowed, use it
+                            setFieldValue(value, value);
+
+                            if (clearInput) {
+                                // Reset input field, if specified.
+                                $input.val('');
+                            }
+
+        				} else {
+        				    // Free text is not allowed so clear field values now.
+        				    clearField();
         				}
 
-        				// Check if a selection from the list is required
-        				else if(!input.attr('data-require-selection')) {
-        					// free text is allowed, use it
-                            setFieldValue(input[0].value, input[0].value);
-        				}
+        			} else {
+        			    clearField();
         			}
+
 
                     // Persist search term
     				return false;
     			};
 
     			var setFieldValue = function(value, label){
-					hiddenInput.val(value);
-					valueEl.text(label).effect('highlight');
-                    valueHolder.addClass('has-value');
+					$hiddenInput.val(value);
+					if (popSeparate) {
+                        $valueEl.text(label).effect('highlight');
+                        $valueHolder.addClass('has-value');
+					}
     			};
 
     			var clearField = function(){
-    				hiddenInput.val('');
-    				valueEl.text(valueEl.data('emptyVal'));
-    				valueHolder.removeClass('has-value');
+    				$hiddenInput.val('');
+    				$input.val('');
+    				if (popSeparate) {
+                        $valueEl.text($valueEl.data('emptyVal'));
+                        $valueHolder.removeClass('has-value');
+    				}
     			};
 
     			// Prevent this field from loading itself multiple times
-    			if(input.attr('data-loaded') == 'true')
+    			if($input.attr('data-loaded') == 'true')
     				return;
-    			input.attr('data-loaded', 'true');
+    			$input.attr('data-loaded', 'true');
 
     			// load autocomplete into this field
-    			input.autocomplete({
-    				source: input.attr('data-source'),
-    				minLength: input.attr('data-min-length'),
+    			$input.autocomplete({
+    				source: source,
+    				minLength: minLength,
     				change: function( event, ui ) {
     					return updateField(ui);
     				},
@@ -64,19 +99,19 @@
     			});
 
     			// Allow clearing of selection
-    			input.parent().find('a.clear').click(function(e){
+    			$input.parent().find('a.clear').click(function(e){
         			e.preventDefault();
         			clearField();
     			});
-    		},
 
-    		onfocusin: function() {
-        		// Trigger a search on click/focus if the field contains a value
-        		var input = $(this);
-        		if (input.val().length >= input.attr('data-min-length')) {
-        		    $(this).autocomplete('search');
-        		}
+                $input.focus(function() {
+                    // Trigger a search on click/focus if the field contains a value
+                    if ($input.val().length >= minLength) {
+                        $input.autocomplete('search');
+                    }
+                });
     		}
+
 		});
 	});
 })(jQuery);
