@@ -559,14 +559,14 @@ class AutoCompleteField extends TextField
             ->sort($this->sourceSort)
             ->limit($limit);
 
-        // Go through each source field and apply each keyword separately using ->filter() to ensure they are combined via "AND".
+        // Fetch results that match all of the keywords across any of the source fields
         $keywords = preg_split('/[\s,]+/', $q);
-        foreach ($sourceFields as $sourceField) {
-            foreach($keywords as $keyword) {
-                $query = $query->filter([
-                    "{$sourceField}:PartialMatch" => $keyword
-                ]);
+        foreach($keywords as $keyword) {
+            $filters = array();
+            foreach ($sourceFields as $sourceField) {
+                $filters["{$sourceField}:PartialMatch"] = $keyword;
             }
+            $query = $query->filterAny($filters);
         }
 
         if ($this->sourceFilter) {
