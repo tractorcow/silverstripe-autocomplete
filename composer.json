@@ -1,7 +1,7 @@
 {
 	"name": "tractorcow/silverstripe-autocomplete",
 	"description": "Autocomplete text field for Silverstripe",
-	"type": "silverstripe-module",
+	"type": "silverstripe-vendormodule",
 	"keywords": [
 		"silverstripe",
 		"autocomplete"
@@ -18,12 +18,21 @@
 		"issues": "http://github.com/tractorcow/silverstripe-autocomplete/issues"
 	},
 	"require": {
-		"silverstripe/framework": "~3.1"
+		"silverstripe/framework": "^4@dev"
 	},
 	"extra": {
 		"installer-name": "autocomplete",
 		"branch-alias": {
-			"dev-master": "3.5.x-dev"
-		}
-	}
+			"dev-master": "4.x-dev"
+		},
+        "expose": [
+            "css",
+            "javascript"
+        ]
+	},
+    "autoload": {
+        "psr-4": {
+            "TractorCow\\Autocomplete\\": "src/"
+        }
+    }
 }
