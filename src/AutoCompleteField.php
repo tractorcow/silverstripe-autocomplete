@@ -120,19 +120,17 @@ class AutoCompleteField extends TextField
      * @param string      $name         The name of the field.
      * @param null|string $title        The title to use in the form.
      * @param string      $value        The initial value of this field.
-     * @param null|int    $maxLength    Maximum number of characters.
-     * @param null|string $form
      * @param null|string $sourceClass  The suggestion source class.
      * @param mixed       $sourceFields The suggestion source fields.
      */
-    public function __construct($name, $title = null, $value = '', $maxLength = null, $form = null, $sourceClass = null, $sourceFields = null)
+    public function __construct($name, $title = null, $value = '', $sourceClass = null, $sourceFields = null)
     {
         // set source
         $this->sourceClass = $sourceClass;
         $this->sourceFields = is_array($sourceFields) ? $sourceFields : array($sourceFields);
 
         // construct the TextField
-        parent::__construct($name, $title, $value, $maxLength, $form);
+        parent::__construct($name, $title, $value);
     }
 
     /**
@@ -175,7 +173,7 @@ class AutoCompleteField extends TextField
     public function Field($properties = array())
     {
         // jQuery Autocomplete Requirements
-        Requirements::css('silverstripe/admin:thirdparty/jquery-ui-themes/smoothness/jquery-ui.css');
+        // Requirements::css('silverstripe/admin:thirdparty/jquery-ui-themes/smoothness/jquery-ui.css');
         Requirements::javascript('silverstripe/admin:thirdparty/jquery/jquery.js');
         Requirements::javascript('silverstripe/admin:thirdparty/jquery-ui/jquery-ui.js');
 
