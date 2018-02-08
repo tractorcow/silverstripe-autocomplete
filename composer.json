@@ -21,7 +21,6 @@
 		"silverstripe/framework": "^4@dev"
 	},
 	"extra": {
-		"installer-name": "autocomplete",
 		"branch-alias": {
 			"dev-master": "4.x-dev"
 		},
