@@ -1,19 +1,24 @@
 <?php
 
+namespace TractorCow\AutoComplete;
+
+use SilverStripe\Forms\TextField;
+use SilverStripe\View\Requirements;
+use SilverStripe\ORM\DataList;
+use SilverStripe\Control\HTTPRequest;
+
 /**
  * Autocompleting text field, using jQuery.
  *
- * @package    forms
- * @subpackage fields-formattedinput
  */
 class AutoCompleteField extends TextField
 {
     /**
      * @var array
      */
-    private static $allowed_actions = array(
+    private static $allowed_actions = [
         'Suggest'
-    );
+    ];
 
     /**
      * Name of the class this field searches.
@@ -27,7 +32,7 @@ class AutoCompleteField extends TextField
      *
      * @var string
      */
-    private $sourceFields = array();
+    private $sourceFields = [];
 
 
     /**
@@ -115,19 +120,17 @@ class AutoCompleteField extends TextField
      * @param string      $name         The name of the field.
      * @param null|string $title        The title to use in the form.
      * @param string      $value        The initial value of this field.
-     * @param null|int    $maxLength    Maximum number of characters.
-     * @param null|string $form
      * @param null|string $sourceClass  The suggestion source class.
      * @param mixed       $sourceFields The suggestion source fields.
      */
-    public function __construct($name, $title = null, $value = '', $maxLength = null, $form = null, $sourceClass = null, $sourceFields = null)
+    public function __construct($name, $title = null, $value = '', $sourceClass = null, $sourceFields = null)
     {
         // set source
         $this->sourceClass = $sourceClass;
         $this->sourceFields = is_array($sourceFields) ? $sourceFields : array($sourceFields);
 
         // construct the TextField
-        parent::__construct($name, $title, $value, $maxLength, $form);
+        parent::__construct($name, $title, $value);
     }
 
     /**
@@ -170,18 +173,18 @@ class AutoCompleteField extends TextField
     public function Field($properties = array())
     {
         // jQuery Autocomplete Requirements
-        Requirements::css(THIRDPARTY_DIR . '/jquery-ui-themes/smoothness/jquery-ui.css');
-        Requirements::javascript(THIRDPARTY_DIR . '/jquery/jquery.js');
-        Requirements::javascript(THIRDPARTY_DIR . '/jquery-ui/jquery-ui.js');
+        // Requirements::css('silverstripe/admin:thirdparty/jquery-ui-themes/smoothness/jquery-ui.css');
+        Requirements::javascript('silverstripe/admin:thirdparty/jquery/jquery.js');
+        Requirements::javascript('silverstripe/admin:thirdparty/jquery-ui/jquery-ui.js');
 
         // Entwine requirements
-        Requirements::javascript(THIRDPARTY_DIR . '/jquery-entwine/dist/jquery.entwine-dist.js');
+        Requirements::javascript('silverstripe/admin:thirdparty/jquery-entwine/dist/jquery.entwine-dist.js');
 
         // init script for this field
-        Requirements::javascript(AUTOCOMPLETEFIELD_DIR . '/javascript/AutocompleteField.js');
+        Requirements::javascript('tractorcow/silverstripe-autocomplete:javascript/AutocompleteField.js');
 
         // styles for this field
-        Requirements::css(AUTOCOMPLETEFIELD_DIR . '/css/AutocompleteField.css');
+        Requirements::css('tractorcow/silverstripe-autocomplete:css/AutocompleteField.css');
 
         return parent::Field($properties);
     }
@@ -538,7 +541,7 @@ class AutoCompleteField extends TextField
      *
      * @return string A JSON list of items for Autocomplete.
      */
-    public function Suggest(SS_HTTPRequest $request)
+    public function Suggest(HTTPRequest $request)
     {
         // Find class to search within
         $sourceClass = $this->determineSourceClass();
