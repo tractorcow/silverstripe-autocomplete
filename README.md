@@ -8,7 +8,7 @@ usage
 
 A field can be created as follows...
 ```php
-\TractorCow\AutoCompleteField\AutoCompleteField::create('MyTextField','My Text Field','',null,null,'LookupDataObject','LookupFieldName')
+\TractorCow\AutoComplete\AutoCompleteField::create('MyTextField','My Text Field','',null,null,'LookupDataObject','LookupFieldName')
 ```
 where it will accept values from the following dataobject field...
 
