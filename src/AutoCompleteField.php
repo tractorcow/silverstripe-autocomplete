@@ -2,6 +2,8 @@
 
 namespace TractorCow\AutoComplete;
 
+use SilverStripe\CMS\Controllers\ContentController;
+use SilverStripe\Control\Controller;
 use SilverStripe\Forms\TextField;
 use SilverStripe\View\Requirements;
 use SilverStripe\ORM\DataList;
@@ -174,11 +176,13 @@ class AutoCompleteField extends TextField
     {
         // jQuery Autocomplete Requirements
         // Requirements::css('silverstripe/admin:thirdparty/jquery-ui-themes/smoothness/jquery-ui.css');
-        Requirements::javascript('silverstripe/admin:thirdparty/jquery/jquery.js');
-        Requirements::javascript('silverstripe/admin:thirdparty/jquery-ui/jquery-ui.js');
+        if (Controller::curr() instanceof ContentController) {
+            Requirements::javascript('silverstripe/admin:thirdparty/jquery/jquery.js');
+            Requirements::javascript('silverstripe/admin:thirdparty/jquery-ui/jquery-ui.js');
 
-        // Entwine requirements
-        Requirements::javascript('silverstripe/admin:thirdparty/jquery-entwine/dist/jquery.entwine-dist.js');
+            // Entwine requirements
+            Requirements::javascript('silverstripe/admin:thirdparty/jquery-entwine/dist/jquery.entwine-dist.js');
+        }
 
         // init script for this field
         Requirements::javascript('tractorcow/silverstripe-autocomplete:javascript/AutocompleteField.js');
