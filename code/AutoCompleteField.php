@@ -193,13 +193,23 @@ class AutoCompleteField extends TextField
      */
     public function Value()
     {
+        // try to fetch value from selected record
         $record = DataList::create($this->sourceClass)
             ->filter(array(
                 $this->storedField => $this->dataValue()
             ))
             ->first();
 
-        return $record ? $record->{$this->displayField} : '';
+        if ($record) {
+            return $record->{$this->displayField};
+        }
+
+        // if selection is not required, display the user provided value
+        if (!$this->requireSelection && !empty($this->value)) {
+            return $this->value;
+        }
+
+        return '';
     }
 
     /**
