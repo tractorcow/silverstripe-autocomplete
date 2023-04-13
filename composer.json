@@ -18,7 +18,7 @@
 		"issues": "http://github.com/tractorcow/silverstripe-autocomplete/issues"
 	},
 	"require": {
-		"silverstripe/framework": "^4@dev"
+		"silverstripe/framework": "^5"
 	},
 	"extra": {
 		"branch-alias": {
@@ -33,5 +33,13 @@
         "psr-4": {
             "TractorCow\\AutoComplete\\": "src/"
         }
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+	"config": {
+		"allow-plugins": {
+			"composer/installers": true,
+			"silverstripe/vendor-plugin": true
+		}
+	}
 }
