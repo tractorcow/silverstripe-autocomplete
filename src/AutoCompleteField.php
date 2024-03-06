@@ -185,10 +185,10 @@ class AutoCompleteField extends TextField
         }
 
         // init script for this field
-        Requirements::javascript('tractorcow/silverstripe-autocomplete:javascript/AutocompleteField.js');
+        Requirements::javascript('hudhaifas-forks/silverstripe-autocomplete:javascript/AutocompleteField.js');
 
         // styles for this field
-        Requirements::css('tractorcow/silverstripe-autocomplete:css/AutocompleteField.css');
+        Requirements::css('hudhaifas-forks/silverstripe-autocomplete:css/AutocompleteField.css');
 
         return parent::Field($properties);
     }
