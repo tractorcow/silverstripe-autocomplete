@@ -177,18 +177,18 @@ class AutoCompleteField extends TextField
         // jQuery Autocomplete Requirements
         // Requirements::css('silverstripe/admin:thirdparty/jquery-ui-themes/smoothness/jquery-ui.css');
         if (Controller::curr() instanceof ContentController) {
-            Requirements::javascript('silverstripe/admin:thirdparty/jquery/jquery.js');
+            Requirements::javascript('silverstripe/admin:thirdparty/jquery-query/jquery.query.js');
             Requirements::javascript('silverstripe/admin:thirdparty/jquery-ui/jquery-ui.js');
 
             // Entwine requirements
-            Requirements::javascript('silverstripe/admin:thirdparty/jquery-entwine/dist/jquery.entwine-dist.js');
+            Requirements::javascript('silverstripe/admin:thirdparty/jquery-entwine/jquery.entwine.js');
         }
 
         // init script for this field
-        Requirements::javascript('tractorcow/silverstripe-autocomplete:javascript/AutocompleteField.js');
+        Requirements::javascript('hudhaifas-forks/silverstripe-autocomplete:javascript/AutocompleteField.js');
 
         // styles for this field
-        Requirements::css('tractorcow/silverstripe-autocomplete:css/AutocompleteField.css');
+        Requirements::css('hudhaifas-forks/silverstripe-autocomplete:css/AutocompleteField.css');
 
         return parent::Field($properties);
     }
