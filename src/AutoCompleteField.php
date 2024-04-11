@@ -150,7 +150,8 @@ class AutoCompleteField extends TextField
                 'autocomplete' => 'off',
                 'name' => $this->getName() . '__autocomplete',
                 'placeholder' => 'Search on ' . implode(' or ', $this->getSourceFields())
-            ), parent::getAttributes()
+            ),
+            parent::getAttributes()
         );
 
         // Override the value so we start with a clear search form (depending on configuration).
@@ -177,11 +178,11 @@ class AutoCompleteField extends TextField
         // jQuery Autocomplete Requirements
         // Requirements::css('silverstripe/admin:thirdparty/jquery-ui-themes/smoothness/jquery-ui.css');
         if (Controller::curr() instanceof ContentController) {
-            Requirements::javascript('silverstripe/admin:thirdparty/jquery/jquery.js');
+            Requirements::javascript('silverstripe/admin:thirdparty/jquery-query/jquery.query.js');
             Requirements::javascript('silverstripe/admin:thirdparty/jquery-ui/jquery-ui.js');
 
             // Entwine requirements
-            Requirements::javascript('silverstripe/admin:thirdparty/jquery-entwine/dist/jquery.entwine-dist.js');
+            Requirements::javascript('silverstripe/admin:thirdparty/jquery-entwine/jquery.entwine.js');
         }
 
         // init script for this field
