@@ -18,12 +18,12 @@
 		"issues": "http://github.com/tractorcow/silverstripe-autocomplete/issues"
 	},
 	"require": {
-		"silverstripe/framework": "^5"
+		"silverstripe/framework": "^6"
 	},
+    "require-dev": {
+        "phpunit/phpunit": "^11.5"
+    },
 	"extra": {
-		"branch-alias": {
-			"dev-master": "5.x-dev"
-		},
         "expose": [
             "css",
             "javascript"
@@ -31,15 +31,10 @@
 	},
     "autoload": {
         "psr-4": {
-            "TractorCow\\AutoComplete\\": "src/"
+            "TractorCow\\AutoComplete\\": "src/",
+            "TractorCow\\AutoComplete\\Tests\\": "tests/php/"
         }
     },
     "minimum-stability": "dev",
-    "prefer-stable": true,
-	"config": {
-		"allow-plugins": {
-			"composer/installers": true,
-			"silverstripe/vendor-plugin": true
-		}
-	}
+    "prefer-stable": true
 }

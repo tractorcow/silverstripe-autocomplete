@@ -2,3 +2,7 @@
 composer.lock
 vendor
 framework
+public/
+.php-cs-fixer.cache
+app/
+.phpunit.result.cache

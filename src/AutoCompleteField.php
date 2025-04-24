@@ -2,134 +2,104 @@
 
 namespace TractorCow\AutoComplete;
 
-use SilverStripe\CMS\Controllers\ContentController;
 use SilverStripe\Control\Controller;
-use SilverStripe\Forms\TextField;
-use SilverStripe\View\Requirements;
-use SilverStripe\ORM\DataList;
 use SilverStripe\Control\HTTPRequest;
+use SilverStripe\Forms\TextField;
+use SilverStripe\ORM\DataList;
+use SilverStripe\View\Requirements;
+use SilverStripe\ORM\FieldType\DBHTMLText;
 
 /**
  * Autocompleting text field, using jQuery.
- *
  */
 class AutoCompleteField extends TextField
 {
     /**
-     * @var array
-     */
-    private static $allowed_actions = [
-        'Suggest'
-    ];
-
-    /**
-     * Name of the class this field searches.
-     *
-     * @var string
-     */
-    private $sourceClass;
-
-    /**
-     * Name of the field to use as a filter for searches and results.
-     *
-     * @var string
-     */
-    private $sourceFields = [];
-
-
-    /**
-     * Constant SQL condition used to filter out search results.
-     *
-     * @var string
-     */
-    private $sourceFilter;
-
-    /**
-     * Constant SQL clause to sort results.
-     *
-     * @var string
-     */
-    private $sourceSort = 'ID ASC';
-
-    /**
      * The url to use as the live search source.
-     *
-     * @var string
      */
-    protected $suggestURL;
+    protected string $suggestURL = '';
 
     /**
      * Maximum number of search results to display per search.
-     *
-     * @var int
      */
-    protected $limit = 10;
+    protected int $limit = 10;
 
     /**
      * Minimum number of characters that a search will act on.
-     *
-     * @var int
      */
-    protected $minSearchLength = 2;
+    protected int $minSearchLength = 2;
 
     /**
      * Flag indicating whether a selection must be made from the existing list.
      *
      * By default this is true to ensure ID value is saved.
-     *
-     * @var bool
      */
-    protected $requireSelection = true;
+    protected bool $requireSelection = true;
 
     /**
      * The field or method used to identify the results.
-     *
-     * @var string
      */
-    protected $displayField = 'Title';
+    protected string $displayField = 'Title';
 
     /**
-     * The field or method used for the display of the result in the listing
-     *
-     * @var string
+     * The field or method used for the display of the result in the listing.
      */
-    protected $labelField = 'Title';
+    protected string $labelField = 'Title';
 
     /**
      * The field to store in the database.
-     *
-     * @var string
      */
-    protected $storedField = 'ID';
+    protected string $storedField = 'ID';
 
     /**
      * Indicate if results (when selected) should be populated underneath the text field instead of inside of the text field.
-     *
-     * @var bool
      */
-    protected $populateSeparately = false;
+    protected bool $populateSeparately = false;
 
     /**
      * Clears the search input field field when a selection has been made.
      *
      * NOTE: Only applies to when populating separately.
      *
-     * @var bool
      */
-    protected $clearInput = true;
+    protected bool $clearInput = true;
+
+    private static array $allowed_actions = [
+        'Suggest',
+    ];
 
     /**
-     * @param string      $name         The name of the field.
-     * @param null|string $title        The title to use in the form.
-     * @param string      $value        The initial value of this field.
-     * @param null|string $sourceClass  The suggestion source class.
-     * @param mixed       $sourceFields The suggestion source fields.
+     * Name of the class this field searches.
+     */
+    private string $sourceClass;
+
+    /**
+     * Name of the field to use as a filter for searches and results.
+     */
+    private array $sourceFields;
+
+    /**
+     * Constant SQL condition used to filter out search results.
+     */
+    protected string $sourceFilter = '';
+
+    /**
+     * Constant SQL clause to sort results.
+     */
+    private string $sourceSort = 'ID ASC';
+
+    /**
+     * @param string $name the name of the field
+     * @param null|string $title the title to use in the form
+     * @param string $value the initial value of this field
+     * @param null|string $sourceClass the suggestion source class
+     * @param mixed $sourceFields the suggestion source fields
      */
     public function __construct($name, $title = null, $value = '', $sourceClass = null, $sourceFields = null)
     {
         // set source
         $this->sourceClass = $sourceClass;
-        $this->sourceFields = is_array($sourceFields) ? $sourceFields : array($sourceFields);
+        $this->sourceFields = is_array($sourceFields) ? $sourceFields : [$sourceFields];
 
         // construct the TextField
         parent::__construct($name, $title, $value);
@@ -141,7 +111,7 @@ class AutoCompleteField extends TextField
     public function getAttributes()
     {
         $atts = array_merge(
-            array(
+            [
                 'data-source' => $this->getSuggestURL(),
                 'data-min-length' => $this->getMinSearchLength(),
                 'data-require-selection' => $this->getRequireSelection(),
@@ -149,12 +119,13 @@ class AutoCompleteField extends TextField
                 'data-clear-input' => $this->getClearInput(),
                 'autocomplete' => 'off',
                 'name' => $this->getName() . '__autocomplete',
-                'placeholder' => 'Search on ' . implode(' or ', $this->getSourceFields())
-            ), parent::getAttributes()
+                'placeholder' => 'Search on ' . implode(' or ', $this->getSourceFields()),
+            ],
+            parent::getAttributes()
         );
 
         // Override the value so we start with a clear search form (depending on configuration).
-        $atts['value'] = ($this->getPopulateSeparately() ? null : $this->Value());
+        $atts['value'] = ($this->getPopulateSeparately() ? null : $this->getValue());
 
         return $atts;
     }
@@ -169,14 +140,14 @@ class AutoCompleteField extends TextField
 
     /**
      * @param array $properties
-     *
-     * @return string
+     * @inheritDoc
+     * @return string|DBHTMLText
      */
-    public function Field($properties = array())
+    public function Field($properties = [])
     {
         // jQuery Autocomplete Requirements
         // Requirements::css('silverstripe/admin:thirdparty/jquery-ui-themes/smoothness/jquery-ui.css');
-        if (Controller::curr() instanceof ContentController) {
+        if (is_a(Controller::curr(), 'SilverStripe\\CMS\\Controllers\\ContentController')) {
             Requirements::javascript('silverstripe/admin:thirdparty/jquery-query/jquery.query.js');
             Requirements::javascript('silverstripe/admin:thirdparty/jquery-ui/jquery-ui.js');
 
@@ -195,16 +166,14 @@ class AutoCompleteField extends TextField
 
     /**
      * Gets the readable value of the record, per $displayField.
-     *
-     * @return string
      */
-    public function Value()
+    public function getValue(): string
     {
         // try to fetch value from selected record
         $record = DataList::create($this->sourceClass)
-            ->filter(array(
-                $this->storedField => $this->dataValue()
-            ))
+            ->filter([
+                $this->storedField => $this->dataValue(),
+            ])
             ->first();
 
         if ($record) {
@@ -222,11 +191,9 @@ class AutoCompleteField extends TextField
     /**
      * Set the class from which to get Autocomplete suggestions.
      *
-     * @param string $className The name of the source class.
-     *
-     * @return static
+     * @param string $className the name of the source class
      */
-    public function setSourceClass($className)
+    public function setSourceClass(string $className): self
     {
         $this->sourceClass = $className;
 
@@ -236,9 +203,9 @@ class AutoCompleteField extends TextField
     /**
      * Get the class which is used for Autocomplete suggestions.
      *
-     * @return string The name of the source class.
+     * @return string the name of the source class
      */
-    public function getSourceClass()
+    public function getSourceClass(): string
     {
         return $this->sourceClass;
     }
@@ -246,40 +213,33 @@ class AutoCompleteField extends TextField
     /**
      * Set the field from which to get Autocomplete suggestions.
      *
-     * @param array|string $fields The name of the source field.
+     * @param array|string $fields the name of the source field
      *
      * @return static
      */
-    public function setSourceFields($fields)
+    public function setSourceFields(string|array $fields): self
     {
-        $this->sourceFields = is_array($fields) ? $fields : array($fields);
+        $this->sourceFields = is_array($fields) ? $fields : [$fields];
 
         return $this;
     }
 
     /**
      * Get the field which is used for Autocomplete suggestions.
-     *
-     * @return array|string
      */
-    public function getSourceFields()
+    public function getSourceFields(): array|string
     {
         if (isset($this->sourceFields)) {
             return $this->sourceFields;
         }
 
-        return array($this->getName());
+        return [$this->getName()];
     }
-
 
     /**
      * Set the field or method that should label the results.
-     *
-     * @param string $field
-     *
-     * @return static
      */
-    public function setDisplayField($field)
+    public function setDisplayField(string $field): self
     {
         $this->displayField = $field;
 
@@ -289,21 +249,17 @@ class AutoCompleteField extends TextField
     /**
      * Get the field or method that should label the results.
      *
-     * @return string The name of the field.
+     * @return string the name of the field
      */
-    public function getDisplayField()
+    public function getDisplayField(): string
     {
         return $this->displayField;
     }
 
     /**
      * Set the field or method that should label the results.
-     *
-     * @param string $field
-     *
-     * @return static
      */
-    public function setLabelField($field)
+    public function setLabelField(string $field): self
     {
         $this->labelField = $field;
 
@@ -313,48 +269,39 @@ class AutoCompleteField extends TextField
     /**
      * Get the field or method that should label the results.
      *
-     * @return string The name of the field.
+     * @return string the name of the field
      */
-    public function getLabelField()
+    public function getLabelField(): string
     {
         return $this->labelField;
     }
 
-
     /**
      * Set the field that should store in the database.
-     *
-     * @param string $field
-     *
-     * @return static
      */
-    public function setStoredField($field)
+    public function setStoredField(string $field): self
     {
         $this->storedField = $field;
 
         return $this;
     }
 
-
     /**
-     * Get the field that should store in the database
+     * Get the field that should store in the database.
      *
-     * @return string The name of the field.
+     * @return string the name of the field
      */
-    public function getStoredField()
+    public function getStoredField(): string
     {
         return $this->storedField;
     }
 
-
     /**
      * Set the filter used to get Autocomplete suggestions.
      *
-     * @param string $filter The source filter.
-     *
-     * @return static
+     * @param string $filter the source filter
      */
-    public function setSourceFilter($filter)
+    public function setSourceFilter(string $filter): self
     {
         $this->sourceFilter = $filter;
 
@@ -363,36 +310,28 @@ class AutoCompleteField extends TextField
 
     /**
      * Get the filter used for Autocomplete suggestions.
-     *
-     * @return string
      */
-    public function getSourceFilter()
+    public function getSourceFilter(): string
     {
         return $this->sourceFilter;
     }
 
-
     /**
      * Set the sort used to get Autocomplete suggestions.
      *
-     * @param string $sort The source sort.
-     *
-     * @return static
+     * @param string $sort the source sort
      */
-    public function setSourceSort($sort)
+    public function setSourceSort(string $sort): self
     {
         $this->sourceSort = $sort;
 
         return $this;
     }
 
-
     /**
      * Get the sort used for Autocomplete suggestions.
-     *
-     * @return string
      */
-    public function getSourceSort()
+    public function getSourceSort(): string
     {
         return $this->sourceSort;
     }
@@ -400,73 +339,47 @@ class AutoCompleteField extends TextField
     /**
      * Set the URL used to fetch Autocomplete suggestions.
      *
-     * @param string $url The URL used for suggestions.
-     *
-     * @return static
+     * @param string $url the URL used for suggestions
      */
-    public function setSuggestURL($url)
+    public function setSuggestURL(string $url): self
     {
         $this->suggestURL = $url;
 
         return $this;
     }
 
-    /**
-     * @param int $limit
-     *
-     * @return static
-     */
-    public function setLimit($limit)
+    public function setLimit(int $limit): self
     {
         $this->limit = $limit;
 
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getLimit()
+    public function getLimit(): int
     {
         return $this->limit;
     }
 
-    /**
-     * @param int $length
-     *
-     * @return static
-     */
-    public function setMinSearchLength($length)
+    public function setMinSearchLength(int $length): self
     {
         $this->minSearchLength = $length;
 
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getMinSearchLength()
+    public function getMinSearchLength(): int
     {
         return $this->minSearchLength;
     }
 
-    /**
-     * @param bool $requireSelection
-     *
-     * @return static
-     */
-    public function setRequireSelection($requireSelection)
+    public function setRequireSelection(bool $requireSelection): self
     {
         $this->requireSelection = $requireSelection;
 
         return $this;
     }
 
-    /**
-     * @return bool
-     */
-    public function getRequireSelection()
+    public function getRequireSelection(): bool
     {
         return $this->requireSelection;
     }
@@ -476,9 +389,9 @@ class AutoCompleteField extends TextField
      *
      * Returns null if the built-in mechanism is used.
      *
-     * @return string The URL used for suggestions.
+     * @return string the URL used for suggestions
      */
-    public function getSuggestURL()
+    public function getSuggestURL(): string
     {
         if (!empty($this->suggestURL)) {
             return $this->suggestURL;
@@ -488,80 +401,45 @@ class AutoCompleteField extends TextField
         return parse_url($this->Link(), PHP_URL_PATH) . '/Suggest';
     }
 
-    /**
-     * @param bool $populateSeparately
-     * @return static
-     */
-    public function setPopulateSeparately($populateSeparately)
+    public function setPopulateSeparately(bool $populateSeparately): self
     {
         $this->populateSeparately = $populateSeparately;
+
         return $this;
     }
 
-    /**
-     * @return bool
-     */
-    public function getPopulateSeparately()
+    public function getPopulateSeparately(): bool
     {
         return $this->populateSeparately;
     }
 
-    /**
-     * @param bool $clearInput
-     * @return static
-     */
-    public function setClearInput($clearInput)
+    public function setClearInput(bool $clearInput): self
     {
         $this->clearInput = $clearInput;
+
         return $this;
     }
 
-    /**
-     * @return bool
-     */
-    public function getClearInput()
+    public function getClearInput(): bool
     {
         return $this->clearInput;
     }
 
     /**
-     * @return null|string
-     */
-    protected function determineSourceClass()
-    {
-        if ($sourceClass = $this->sourceClass) {
-            return $sourceClass;
-        }
-
-        $form = $this->getForm();
-
-        if (!$form) {
-            return null;
-        }
-
-        $record = $form->getRecord();
-
-        if (!$record) {
-            return null;
-        }
-
-        return $record->ClassName;
-    }
-
-    /**
      * Handle a request for an Autocomplete list.
      *
-     * @param SS_HTTPRequest $request The request to handle.
+     * @param HTTPRequest $request the request to handle
      *
-     * @return string A JSON list of items for Autocomplete.
+     * @return string a JSON list of items for Autocomplete
+     * @throws \JsonException
      */
-    public function Suggest(HTTPRequest $request)
+    public function Suggest(HTTPRequest $request): string
     {
         // Find class to search within
         $sourceClass = $this->determineSourceClass();
 
         if (!$sourceClass) {
-            return json_encode(array());
+            return json_encode([], JSON_THROW_ON_ERROR);
         }
 
         // Find fields to search within
@@ -578,8 +456,8 @@ class AutoCompleteField extends TextField
 
         // Fetch results that match all of the keywords across any of the source fields
         $keywords = preg_split('/[\s,]+/', $q);
-        foreach($keywords as $keyword) {
-            $filters = array();
+        foreach ($keywords as $keyword) {
+            $filters = [];
             foreach ($sourceFields as $sourceField) {
                 $filters["{$sourceField}:PartialMatch"] = $keyword;
             }
@@ -591,19 +469,30 @@ class AutoCompleteField extends TextField
         }
 
         // generate items from result
-        $items = array();
+        $items = [];
 
         foreach ($query as $record) {
-            $items[$record->{$this->storedField}] = array(
+            $items[$record->{$this->storedField}] = [
                 'label' => $record->{$this->labelField},
                 'value' => $record->{$this->displayField},
-                'stored' => $record->{$this->storedField}
-            );
+                'stored' => $record->{$this->storedField},
+            ];
         }
 
         $items = array_values($items);
 
         // the response body
-        return json_encode($items);
+        return json_encode($items, JSON_THROW_ON_ERROR);
+    }
+
+    protected function determineSourceClass(): ?string
+    {
+        if ($sourceClass = $this->sourceClass) {
+            return $sourceClass;
+        }
+
+        $form = $this->getForm();
+
+        return $form?->getRecord()?->ClassName;
     }
 }
